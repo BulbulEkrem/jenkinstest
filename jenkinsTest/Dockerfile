@@ -1,20 +1,24 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+
+
+EXPOSE 1000
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+
 WORKDIR /src
 COPY ["jenkinsTest/jenkinsTest.csproj", "jenkinsTest/"]
 RUN dotnet restore "jenkinsTest/jenkinsTest.csproj"
+
+
 COPY . .
 WORKDIR "/src/jenkinsTest"
-RUN dotnet build "jenkinsTest.csproj" -c Release -o /app/build
+RUN dotnet build "jenkinsTest.csproj" -c Release -o /app/build --no-restore
 
 FROM build AS publish
-RUN dotnet publish "jenkinsTest.csproj" -c Release -o /app/publish
+RUN dotnet publish "jenkinsTest.csproj" -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app
